@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Image Texture on Rectangle Rocking between Walls</title>
+
+<!--
+  imageTexture.html
+
+  Program to draw a rocking image between two walls;
+  objects are displayed with varying materials under a single light source.
+  Adapted from Angel & Shreiner 2D Sierpinski Gasket, Color Cube programs
+  and recursive sphere and Whitford Holey's textured moving ovoid program.
+  by J. Andrew Whitford Holey, March 15, 2016
+-->
+
+
+<!--
+  vertex shader script
+-->
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;    // vertex position
+attribute vec3 vNormal;      // normal vector
+attribute vec2 vTexCoord;    // texture coordinate
+
+varying vec3 fN;             // normal vector for fragments
+varying vec3 fE;             // viewer vector for fragments
+varying vec3 fL;             // light direction vector for fragments
+varying vec2 fTexCoord;      // texture coordinate for fragments
+
+uniform mat4 model_view;
+uniform mat4 projection;
+uniform mat3 normal_mat;
+uniform vec4 light_position;
+
+void main()
+{
+  vec4 ecPosition = model_view * vPosition;
+
+  fN = normal_mat * vNormal;
+  fE = -ecPosition.xyz;
+  if (light_position.w == 0.0) {
+    fL = light_position.xyz;
+  } else {
+    fL = light_position.xyz - ecPosition.xyz;
+  }
+
+  fTexCoord = vTexCoord; // just pass through the texture coordinate
+
+  gl_Position = projection * ecPosition;
+} 
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+   
+varying vec3 fN;
+varying vec3 fL;
+varying vec3 fE;
+varying vec2 fTexCoord;
+
+uniform vec4 ambient_product, diffuse_product, specular_product;
+uniform float shininess;
+uniform bool  isWall;
+uniform sampler2D sandyTexture;
+uniform sampler2D imageTexture;
+
+void main()
+{
+  vec3 N = normalize(fN);
+  vec3 E = normalize(fE);
+  vec3 L = normalize(fL);
+  vec3 H = normalize(L + E);
+
+  float Kd = max(dot(L, N), 0.0);
+  float Ks = pow(max(dot(N, H), 0.0), shininess);
+
+  vec4 ambient  = ambient_product;
+  vec4 diffuse  = Kd * diffuse_product;
+  vec4 specular = Ks * specular_product;
+  if (dot(L, N) < 0.0) {
+    specular = vec4(0.0, 0.0, 0.0, 1.0);
+  }
+
+  vec4 fColor;
+  if (isWall) {
+  	fColor = (ambient + diffuse) * texture2D(sandyTexture, fTexCoord) +
+                 specular;
+  } else {
+    fColor = (ambient + diffuse) * texture2D(imageTexture, fTexCoord) +
+                 specular;
+  }
+  fColor.a     = 1.0;
+  gl_FragColor = fColor;
+}
+</script>
+
+<script type="text/javascript" src="../CS321/CourseSamples/Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../CS321/CourseSamples/Common/initShaders.js"></script>
+<script type="text/javascript" src="../CS321/CourseSamples/Common/MV.js"></script>
+<script type="text/javascript" src="../CS321/CourseSamples/Common/holeyShapes.js"></script>
+<script type="text/javascript" src="Resources/sky.js"></script>
+<script type="text/javascript" src="Utilities/Main.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="960" height="768">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+   
+<p></p>
+
+<p>
+<button id= "startButton">Start Animation</button>&nbsp;&nbsp;
+<button id= "stopButton" >Stop Animation</button></p>
+
+<p>
+<button id= "leftButton" >Move Left</button>&nbsp;&nbsp;
+<button id= "rightButton">Move Right</button>&nbsp;&nbsp;&nbsp;&nbsp;
+<button id= "downButton" >Move Down</button>&nbsp;&nbsp;
+<button id= "upButton"   >Move Up</button>&nbsp;&nbsp;&nbsp;&nbsp;
+<button id= "inButton"   >Move In</button>&nbsp;&nbsp;
+<button id= "outButton"  >Move Out</button></p>
+
+
+</body>
+</html>

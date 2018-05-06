@@ -1,0 +1,204 @@
+<html>
+
+<head>
+  <title>Lorsung App</title>
+</head>
+
+<!-- 
+    App.html is my final Graphics project.
+    Author: Conor Lorsung
+    Boilerplate code taken from J. Andrew Whitford Holey.
+-->
+
+
+<!--
+  vertex shader script
+-->
+<script id="vertex-shader" type="x-shader/x-vertex">
+    attribute vec4 vPosition;    // vertex position
+    attribute vec3 vNormal;      // normal vector
+    attribute vec2 vTexCoord;    // texture coordinate
+    
+    varying vec3 fN;             // normal vector for fragments
+    varying vec3 fE;             // viewer vector for fragments
+    varying vec3 fL;             // light direction vector for fragments
+    varying vec2 fTexCoord;      // texture coordinate for fragments
+    
+    uniform mat4 model_view;
+    uniform mat4 projection;
+    uniform mat3 normal_mat;
+    uniform vec4 light_position;
+    
+    void main()
+    {
+      vec4 ecPosition = model_view * vPosition;
+    
+      fN = normal_mat * vNormal;
+      fE = -ecPosition.xyz;
+      if (light_position.w == 0.0) {
+        fL = light_position.xyz;
+      } else {
+        fL = light_position.xyz - ecPosition.xyz;
+      }
+    
+      fTexCoord = vTexCoord; // just pass through the texture coordinate
+    
+      gl_Position = projection * ecPosition;
+    } 
+    </script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+       
+    varying vec3 fN;
+    varying vec3 fL;
+    varying vec3 fE;
+    varying vec2 fTexCoord;
+    
+    uniform vec4 ambient_product, diffuse_product, specular_product;
+    uniform float shininess;
+    uniform bool  isWall;
+    uniform sampler2D sandyTexture;
+    uniform sampler2D imageTexture;
+    
+    void main()
+    {
+      vec3 N = normalize(fN);
+      vec3 E = normalize(fE);
+      vec3 L = normalize(fL);
+      vec3 H = normalize(L + E);
+    
+      float Kd = max(dot(L, N), 0.0);
+      float Ks = pow(max(dot(N, H), 0.0), shininess);
+    
+      vec4 ambient  = ambient_product;
+      vec4 diffuse  = Kd * diffuse_product;
+      vec4 specular = Ks * specular_product;
+      if (dot(L, N) < 0.0) {
+        specular = vec4(0.0, 0.0, 0.0, 1.0);
+      }
+    
+      vec4 fColor;
+      if (isWall) {
+          fColor = (ambient + diffuse) * texture2D(sandyTexture, fTexCoord) +
+                     specular;
+      } else {
+        fColor = (ambient + diffuse) * texture2D(imageTexture, fTexCoord) +
+                     specular;
+      }
+      fColor.a     = 1.0;
+      gl_FragColor = fColor;
+    }
+    </script>
+
+
+<script type="text/javascript" src="../../CS321/CourseSamples/Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../../CS321/CourseSamples/Common/initShaders.js"></script>
+<script type="text/javascript" src="../../CS321/CourseSamples/Common/MV.js"></script>
+<script type="text/javascript" src="../../CS321/CourseSamples/Common/MV.js"></script>
+<script type="text/javascript" src="../Utilities/Main.js"></script>
+<script type="text/javascript" src="../Utilities/Space.js"></script>
+
+<body onload="webGLStart();">
+  <br />
+
+  <canvas id="gl-canvas" style="border: none;" width="500" height="500"></canvas>
+
+  <br />
+  <input type="checkbox" id="lighting" checked /> Use lighting
+  <br/> (Use keys to spin and
+  <code>Page Up</code>/
+  <code>Page Down</code> to zoom out/in)
+
+  <br/>
+  <h2>Directional light:</h2>
+
+  <table style="border: 0; padding: 10px;">
+    <tr>
+      <td>
+        <b>Direction:</b>
+        <td>X:
+          <input type="text" id="lightDirectionX" value="-0.25" />
+          <td>Y:
+            <input type="text" id="lightDirectionY" value="-0.25" />
+            <td>Z:
+              <input type="text" id="lightDirectionZ" value="-1.0" />
+    </tr>
+    <tr>
+      <td>
+        <b>Colour:</b>
+        <td>R:
+          <input type="text" id="directionalR" value="0.8" />
+          <td>G:
+            <input type="text" id="directionalG" value="0.8" />
+            <td>B:
+              <input type="text" id="directionalB" value="0.8" />
+    </tr>
+  </table>
+
+  <h2>Ambient light:</h2>
+  <table style="border: 0; padding: 10px;">
+    <tr>
+      <td>
+        <b>Colour:</b>
+        <td>R:
+          <input type="text" id="ambientR" value="0.2" />
+          <td>G:
+            <input type="text" id="ambientG" value="0.2" />
+            <td>B:
+              <input type="text" id="ambientB" value="0.2" />
+    </tr>
+  </table>
+</body>
+
+<script>
+
+function webGLStart() {
+  canvas = document.getElementById("gl-canvas")
+  initGL(canvas)
+  initShaders()
+  initBuffers()
+  initTexture()
+
+  gl.clearColor(0.0, 0.0, 0.0, 1.0)
+  gl.enable(gl.DEPTH_TEST)
+
+  canvas.onmousedown = handleMouseDown
+  document.onmouseup = handleMouseUp
+  document.onmousemove = handleMouseMove
+
+  tick()
+}
+
+  main();
+
+  function main() {
+    const canvas = document.querySelector("#gl-canvas")
+    const gl = canvas.getContext("webgl")
+
+    var vertices = [
+      [-0.7, -0.1, 0],
+      [-0.3, 0.6, 0],
+      [-0.3, -0.3, 0],
+      [0.2, 0.6, 0],
+      [0.3, -0.3, 0],
+      [0.7, 0.6, 0]
+    ]
+
+    var vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    if (!gl) {
+      alert("Unable to initialize WebGL.")
+      return
+    }
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0)
+
+    gl.clear(gl.COLOR_BUFFER_BIT)
+  }
+</script>
+
+</html>
