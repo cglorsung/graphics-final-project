@@ -2,10 +2,10 @@
 
 <head>
 
-<meta charset="utf-8" />
+    <meta charset="utf-8" />
 
-<script type="text/javascript" src="../Utilities/webgl-utils.js"></script>
-<script type="text/javascript" src="../Utilities/glMatrix-0.9.5.min.js"></script>
+    <script type="text/javascript" src="../Utilities/webgl-utils.js"></script>
+    <script type="text/javascript" src="../Utilities/glMatrix-0.9.5.min.js"></script>
 
 
 
@@ -136,6 +136,16 @@
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
 
+
+        function handleBackground(tex) {
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tex.image);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+        }
+
         var planetTexture
 
         function getTexture() {
@@ -146,6 +156,15 @@
             }
 
             planetTexture.image.src = "mars.gif"
+        }
+
+        function getBackground() {
+            starTexture = gl.createTexture()
+            starTexture.image = new Image()
+            starTexture.image.onload = function () {
+                handleBackground(starTexture)
+            }
+            starTexture.image.src = "galaxydisk.gif"
         }
 
         var mvMatrix = mat4.create()
@@ -377,8 +396,10 @@
             initBuffers()
             getTexture()
 
-            gl.clearColor(0.0, 0.0, 0.0, 1.0)
+            gl.clearColor(0.0, 0.0, 0.0, 0.6)
             gl.enable(gl.DEPTH_TEST)
+
+            getBackground()
 
             canvas.onmousedown = handleMouseDown
             document.onmouseup = handleMouseUp
@@ -390,7 +411,7 @@
 
     <body onload="start();">
 
-        <canvas id="gl-canvas" style="border: none;" width="500" height="500"></canvas>
+        <canvas id="gl-canvas" style="border: none; background: url('galaxydisk.gif');" width="1024" height="756"></canvas>
         <br/>
 
         <input type="checkbox" id="lighting" checked /> Use lighting
@@ -440,4 +461,5 @@
         <br/>
         <br/>
     </body>
+
 </html>
