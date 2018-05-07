@@ -1,6 +1,31 @@
 <html lang="en">
+<title>Lorsung Final Project</title>
 
 <head>
+    <style>
+        #directTable {
+            width: 100%;
+            border: 1px solid;
+            padding: 5px;
+            box-shadow: 0px 2px 5px 1px #888888;
+        }
+
+        .canvasRight {
+            height: 85%;
+            float: right;
+            margin-left: 0px;
+            padding: 30px;
+            box-shadow: 5px 5px 8px 5px #888888;
+        }
+
+        .canvasLeft {
+            float: left;
+        }
+
+        .everything {
+            width: 90%;
+        }
+    </style>
 
     <meta charset="utf-8" />
 
@@ -46,7 +71,190 @@
     }
     </script>
 
+    <body>
+        <form id="appForm">
+            <div class="everything">
+
+                <div class="canvasRight" id="rCanvas">
+                    <h1>Mars</h1>
+                    <p>Feel free to click and drag the Mars object in the middle of the frame.
+                        <br>Below are a collection of tables where you may alter some of the environment variables</p>
+                    <p>
+                        <b>Reset all values to median points:</b>
+                        <button onclick="set()">Reset</button>
+                    </p>
+                    <br>
+                    <div id="directTable">
+                        <table style="border: 0px; padding: 10px">
+                            <tr>
+                                <td>
+                                    <b>Tools</b>
+                                </td>
+                                <td></td>
+                                <td style="padding-left: 50px">
+                                    <b>Camera</b>
+                                </td>
+                                <td>
+                                    <b>
+                                        Textures
+                                    </b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="Lighting" value="value" id="lighting" checked /> Lighting
+                                </td>
+                                <td></td>
+                                <td style="padding-left: 50px;">
+                                    FOV:
+                                    <input type="number" value="45" id="fov" style="width: 40%; text-align:center" />
+                                </td>
+                                <td>
+                                    <input type="radio" id="norm" name="texture" value="mars.gif" /> Regular Martian texture
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="rotation" checked /> Rotation
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <input type="radio" id="topo" name="texture" value="marsTopo.gif" /> Topographical texture
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <input type="radio" id="lowell" name="texture" value="marsLowell.gif" /> Lowell sketch
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <input type="button" onclick="getTexture()" value="Change" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br>
+                    <br>
+                    <div id="directTable">
+                        <table style="border: 0px; padding: 10px;">
+                            <tr>
+                                <b>Direction and color of lighting</b>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Direction:</b>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <b>Color:</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>X:
+                                    <input type="range" min="0" max="200" value="100" id="lightX" />
+                                </td>
+                                <td id="lightXval" width="50px">
+                                </td>
+                                <td></td>
+                                <td>
+                                    R:
+                                    <input type="range" min="0" max="100" value="50" id="colorR" />
+                                </td>
+                                <td id="colorRval">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Y:
+                                    <input type="range" min="0" max="200" value="100" id="lightY" />
+                                </td>
+                                <td id="lightYval">
+                                </td>
+                                <td></td>
+                                <td>
+                                    G:
+                                    <input type="range" min="0" max="100" value="50" id="colorG" />
+                                </td>
+                                <td id="colorGval">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Z:
+                                    <input type="range" min="0" max="200" value="100" id="lightZ" />
+                                </td>
+                                <td id="lightZval">
+                                </td>
+                                <td></td>
+                                <td>
+                                    B:
+                                    <input type="range" min="0" max="100" value="50" id="colorB" />
+                                </td>
+                                <td id="colorBval">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br>
+                    <br>
+                    <div id="directTable">
+                        <table style="border: 0; padding: 10px;">
+                            <tr>
+                                <b>Ambient light colors</b>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Color:</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>R:
+                                    <input type="range" min="0" max="100" value="50" id="aColorR" />
+                                </td>
+                                <td id="aColorRval"></td>
+                            </tr>
+                            <tr>
+                                <td>G:
+                                    <input type="range" min="0" max="100" value="50" id="aColorG" />
+                                </td>
+                                <td id="aColorGval"></td>
+                            </tr>
+                            <tr>
+                                <td>B:
+                                    <input type="range" min="0" max="100" value="50" id="aColorB" />
+                                </td>
+                                <td id="aColorBval"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br/>
+                    <br/>
+                </div>
+                <div class="canvasLeft">
+                    <canvas id="gl-canvas" style="border: none; background: url('galaxydisk.gif');" width="1024" height="756"></canvas>
+                    <script>
+                        var rHeight = document.getElementById("rCanvas").clientHeight
+                        console.log(rHeight)
+                        document.getElementById("gl-canvas").height = rHeight
+                    </script>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </form>
+    </body>
+
     <script>
+
+        function set() {
+            document.getElementById("appForm").reset();
+        }
 
         var gl
 
@@ -146,16 +354,26 @@
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
 
+
+
         var planetTexture
 
         function getTexture() {
+
+            try {
+            var tex = document.querySelector('input[name = "texture"]:checked').value;
+            } catch(e) {
+                document.getElementById("norm").checked = true
+                tex = "mars.gif"
+            }
+            
             planetTexture = gl.createTexture()
             planetTexture.image = new Image()
             planetTexture.image.onload = function () {
                 handleLoadedTexture(planetTexture)
             }
 
-            planetTexture.image.src = "mars.gif"
+            planetTexture.image.src = tex
         }
 
         function getBackground() {
@@ -326,26 +544,107 @@
 
         }
 
+        var slideX = document.getElementById("lightX")
+        var adjValX = (slideX.value / 100 - 1).toFixed(2)
+        document.getElementById("lightXval").innerHTML = adjValX
+        slideX.oninput = function () {
+            adjValX = (slideX.value / 100 - 1).toFixed(2)
+            document.getElementById("lightXval").innerHTML = adjValX
+        }
+
+        var slideY = document.getElementById("lightY")
+        var adjValY = (slideY.value / 100 - 1).toFixed(2)
+        document.getElementById("lightYval").innerHTML = adjValY
+        slideY.oninput = function () {
+            adjValY = (slideY.value / 100 - 1).toFixed(2)
+            document.getElementById("lightYval").innerHTML = adjValY
+        }
+
+        var slideZ = document.getElementById("lightZ")
+        var adjValZ = (slideZ.value / 100 - 1).toFixed(2)
+        document.getElementById("lightZval").innerHTML = adjValZ
+        slideZ.oninput = function () {
+            adjValZ = (slideZ.value / 100 - 1).toFixed(2)
+            document.getElementById("lightZval").innerHTML = adjValZ
+        }
+
+        var slideXc = document.getElementById("colorR")
+        var adjValXc = (slideXc.value / 100).toFixed(2)
+        document.getElementById("colorRval").innerHTML = adjValXc
+        slideXc.oninput = function () {
+            adjValXc = (slideXc.value / 100).toFixed(2)
+            document.getElementById("colorRval").innerHTML = adjValXc
+        }
+
+        var slideYc = document.getElementById("colorG")
+        var adjValYc = (slideYc.value / 100).toFixed(2)
+        document.getElementById("colorGval").innerHTML = adjValYc
+        slideYc.oninput = function () {
+            adjValYc = (slideYc.value / 100).toFixed(2)
+            document.getElementById("colorGval").innerHTML = adjValYc
+        }
+
+        var slideZc = document.getElementById("colorB")
+        var adjValZc = (slideZc.value / 100).toFixed(2)
+        document.getElementById("colorBval").innerHTML = adjValZc
+        slideZc.oninput = function () {
+            adjValZc = (slideZc.value / 100).toFixed(2)
+            document.getElementById("colorBval").innerHTML = adjValZc
+        }
+
+        var slideRc = document.getElementById("aColorR")
+        var adjValRc = (slideRc.value / 100).toFixed(2)
+        document.getElementById("aColorRval").innerHTML = adjValRc
+        slideRc.oninput = function () {
+            adjValRc = (slideRc.value / 100).toFixed(2)
+            document.getElementById("aColorRval").innerHTML = adjValRc
+        }
+
+        var slideGc = document.getElementById("aColorG")
+        var adjValGc = (slideGc.value / 100).toFixed(2)
+        document.getElementById("aColorGval").innerHTML = adjValGc
+        slideGc.oninput = function () {
+            adjValGc = (slideGc.value / 100).toFixed(2)
+            document.getElementById("aColorGval").innerHTML = adjValGc
+        }
+
+        var slideBc = document.getElementById("aColorB")
+        var adjValBc = (slideBc.value / 100).toFixed(2)
+        document.getElementById("aColorBval").innerHTML = adjValBc
+        slideBc.oninput = function () {
+            adjValBc = (slideBc.value / 100).toFixed(2)
+            document.getElementById("aColorBval").innerHTML = adjValBc
+        }
+
+        var fov = document.getElementById("fov")
+        var fovVal = parseFloat(fov.value)
+        fov.onchange = function () {
+            fovVal = parseFloat(fov.value)
+        }
+
         function drawScene() {
+
             gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight)
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-            mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix)
+            mat4.perspective(fovVal, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix)
 
             var lighting = document.getElementById("lighting").checked
+            var rotation = document.getElementById("rotation").checked
+
             gl.uniform1i(shaderProgram.useLightingUniform, lighting)
             if (lighting) {
                 gl.uniform3f(
                     shaderProgram.ambientColorUniform,
-                    parseFloat(document.getElementById("ambientR").value),
-                    parseFloat(document.getElementById("ambientG").value),
-                    parseFloat(document.getElementById("ambientB").value)
+                    adjValRc,
+                    adjValGc,
+                    adjValBc
                 )
 
                 var lightDir = [
-                    parseFloat(document.getElementById("lightX").value),
-                    parseFloat(document.getElementById("lightY").value),
-                    parseFloat(document.getElementById("lightZ").value)
+                    adjValX,
+                    adjValY,
+                    adjValZ
                 ]
 
                 var adjustLD = vec3.create()
@@ -355,10 +654,25 @@
 
                 gl.uniform3f(
                     shaderProgram.directionalColorUniform,
-                    parseFloat(document.getElementById("dirR").value),
-                    parseFloat(document.getElementById("dirG").value),
-                    parseFloat(document.getElementById("dirB").value)
+                    adjValXc,
+                    adjValYc,
+                    adjValZc
                 )
+            }
+
+            if (rotation) {
+                var c = Math.cos(25)
+                var s = Math.sin(25)
+
+                var newRotationMatrix = mat4.create()
+
+                mat4.identity(newRotationMatrix)
+
+                mat4.rotate(newRotationMatrix, degToRad(c), [0, 1, 0])
+
+                mat4.rotate(newRotationMatrix, degToRad(s), [1, 0, 0])
+
+                mat4.multiply(newRotationMatrix, planetRotationMatrix, planetRotationMatrix)
             }
 
             mat4.identity(mvMatrix)
@@ -381,11 +695,8 @@
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planetVertexIndexBuffer)
             setMatrixUniforms()
             gl.drawElements(gl.TRIANGLES, planetVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0)
-        }
 
-        function tick() {
-            requestAnimFrame(tick)
-            drawScene()
+            requestAnimationFrame(drawScene)
         }
 
         function start() {
@@ -405,61 +716,14 @@
             document.onmouseup = handleMouseUp
             document.onmousemove = handleMouseMove
 
-            tick();
+            requestAnimationFrame(drawScene)
         }
+
+        start()
     </script>
 
-    <body onload="start();">
+    <script>
 
-        <canvas id="gl-canvas" style="border: none; background: url('galaxydisk.gif');" width="1024" height="756"></canvas>
-        <br/>
-
-        <input type="checkbox" id="lighting" checked /> Use lighting
-        <br/> Spin the planet by dragging it with the mouse.
-        <br/>
-
-        <h2>Directional light:</h2>
-
-        <table style="border: 0; padding: 10px;">
-            <tr>
-                <td>
-                    <b>Direction:</b>
-                    <td>X:
-                        <input type="text" id="lightX" value="-1.0" />
-                        <td>Y:
-                            <input type="text" id="lightY" value="-1.0" />
-                            <td>Z:
-                                <input type="text" id="lightZ" value="-1.0" />
-            </tr>
-            <tr>
-                <td>
-                    <b>Colour:</b>
-                    <td>R:
-                        <input type="text" id="dirR" value="0.8" />
-                        <td>G:
-                            <input type="text" id="dirG" value="0.8" />
-                            <td>B:
-                                <input type="text" id="dirB" value="0.8" />
-            </tr>
-        </table>
-
-
-        <h2>Ambient light:</h2>
-
-        <table style="border: 0; padding: 10px;">
-            <tr>
-                <td>
-                    <b>Colour:</b>
-                    <td>R:
-                        <input type="text" id="ambientR" value="0.2" />
-                        <td>G:
-                            <input type="text" id="ambientG" value="0.2" />
-                            <td>B:
-                                <input type="text" id="ambientB" value="0.2" />
-            </tr>
-        </table>
-        <br/>
-        <br/>
-    </body>
+    </script>
 
 </html>
