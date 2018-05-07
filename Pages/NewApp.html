@@ -19,6 +19,7 @@
     -->
     <style>
         #directTable {
+            height: 20%;
             width: 100%;
             border: 1px solid;
             padding: 5px;
@@ -35,11 +36,13 @@
         }
 
         .canvasLeft {
+            width: 50%;
             float: left;
         }
 
         .everything {
             width: 90%;
+            height: 100%;
         }
     </style>
 
@@ -253,10 +256,9 @@
                     <br/>
                 </div>
                 <div class="canvasLeft">
-                    <canvas id="gl-canvas" style="border: none; background: url('galaxydisk.gif');" width="1024" height="756"></canvas>
+                    <canvas id="gl-canvas" style="border: none; background: url('galaxydisk.gif');" width="1024"></canvas>
                     <script>
                         var rHeight = document.getElementById("rCanvas").clientHeight
-                        console.log(rHeight)
                         document.getElementById("gl-canvas").height = rHeight
                     </script>
                 </div>
