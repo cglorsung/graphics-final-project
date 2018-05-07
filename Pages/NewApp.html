@@ -1,7 +1,22 @@
+<!--
+    Author: Conor Lorsung
+
+    ###Notes and Credits###
+
+    Resources such as webgl-utils and glMatrix were sourced from the internet.
+    webgl-utils comes from Google. glMatrix comes from glMatrix.net.
+    General internet was helpful for getting the equations down.
+
+    Boilerplate shaders came from learnwebgl
+-->
+
 <html lang="en">
 <title>Lorsung Final Project</title>
 
 <head>
+    <!--
+        Some basic styling for the tables and divs
+    -->
     <style>
         #directTable {
             width: 100%;
@@ -252,12 +267,15 @@
 
     <script>
 
+        // Reset the form on button press
         function set() {
             document.getElementById("appForm").reset();
         }
 
+        // gl variable
         var gl
 
+        // Initialize gl
         function initGL(canvas) {
             gl = canvas.getContext("webgl")
             gl.viewportWidth = canvas.width
@@ -269,6 +287,7 @@
             }
         }
 
+        // Boilerplate code taken from learnwebgl
         function getShader(gl, id) {
             var shaderScript = document.getElementById(id);
             if (!shaderScript) {
@@ -301,6 +320,7 @@
 
         var shaderProgram
 
+        // Boilerplate code taken from learnwebgl
         function initShaders() {
             var fragShader = getShader(gl, "shader-fs")
             var vertShader = getShader(gl, "shader-vs")
@@ -334,6 +354,7 @@
         }
 
 
+        // Generating and binding texture
         function handleLoadedTexture(texture) {
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
             gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -344,7 +365,7 @@
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
 
-
+        // Generating and binding background
         function handleBackground(tex) {
             gl.bindTexture(gl.TEXTURE_2D, tex);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -354,12 +375,10 @@
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
 
-
-
         var planetTexture
 
+        // Get the specified texture and pass it to handlers
         function getTexture() {
-
             try {
             var tex = document.querySelector('input[name = "texture"]:checked').value;
             } catch(e) {
@@ -376,6 +395,7 @@
             planetTexture.image.src = tex
         }
 
+        // Get the background and send it to handler
         function getBackground() {
             starTexture = gl.createTexture()
             starTexture.image = new Image()
@@ -385,23 +405,12 @@
             starTexture.image.src = "galaxydisk.gif"
         }
 
+        // Create move matrix and perspective matrix
         var mvMatrix = mat4.create()
         var mvMatrixStack = []
         var pMatrix = mat4.create()
 
-        function mvPushMatrix() {
-            var copy = mat4.create();
-            mat4.set(mvMatrix, copy);
-            mvMatrixStack.push(copy);
-        }
-
-        function mvPopMatrix() {
-            if (mvMatrixStack.length == 0) {
-                throw "Invalid popMatrix!";
-            }
-            mvMatrix = mvMatrixStack.pop();
-        }
-
+        // set the matrix uniforms for current program
         function setMatrixUniforms() {
             gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
             gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
@@ -412,10 +421,13 @@
             gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
         }
 
+        // Degrees to radians
         function degToRad(x) {
             return x * Math.PI / 180;
         }
 
+        // Handle mouse movement
+        // Followed some examples from learnwebgl
         var mouseDown = false
         var mouseX = null;
         var mouseY = null;
@@ -463,8 +475,13 @@
         var planetVertexTextureCoordBuffer
         var planetVertexIndexBuffer
 
+        // Set up the buffers
         function initBuffers() {
-            var latitudes = 255
+            // Latitudes and longitudes are how many "bands"
+            // or circles it will generate along the outside
+            // of the sphere. This allows for a more uniform
+            // texture. Smaller values result in rough edges
+            var latitudes  = 255
             var longitudes = 255
             var radius = 2
 
@@ -472,6 +489,8 @@
             var normData = []
             var textureCoordData = []
 
+
+            // Had to lookup math equations for this part :(
             for (var i = 0; i <= latitudes; i++) {
                 var theta = i * Math.PI / latitudes
                 var sTheta = Math.sin(theta)
@@ -501,6 +520,7 @@
                 }
             }
 
+            // Index the vertices
             var indexData = []
             for (var i = 0; i < latitudes; i++) {
                 for (var n = 0; n < longitudes; n++) {
@@ -517,7 +537,7 @@
                 }
             }
 
-
+            // Set up the buffers for all components
             planetVertexNormalBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, planetVertexNormalBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normData), gl.STATIC_DRAW);
@@ -544,6 +564,12 @@
 
         }
 
+        /**
+         * This section is where I handle all of the buttons and sliders.
+         * Processing and value normalization also takes place here.
+         * Sliders are initialized on the interval [0 ... 100] | [0 ... 200]
+         * and then adjusted down into appropriate float values with two digits of precision
+         */
         var slideX = document.getElementById("lightX")
         var adjValX = (slideX.value / 100 - 1).toFixed(2)
         document.getElementById("lightXval").innerHTML = adjValX
@@ -622,6 +648,7 @@
             fovVal = parseFloat(fov.value)
         }
 
+        // Draw the scene. Variable  FOV is taken into account here
         function drawScene() {
 
             gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight)
@@ -632,6 +659,7 @@
             var lighting = document.getElementById("lighting").checked
             var rotation = document.getElementById("rotation").checked
 
+            // Set all of the lighting values
             gl.uniform1i(shaderProgram.useLightingUniform, lighting)
             if (lighting) {
                 gl.uniform3f(
@@ -651,7 +679,8 @@
                 vec3.normalize(lightDir, adjustLD)
                 vec3.scale(adjustLD, -1)
                 gl.uniform3fv(shaderProgram.lightingDirectionUniform, adjustLD)
-
+                
+                // Set all of the color values
                 gl.uniform3f(
                     shaderProgram.directionalColorUniform,
                     adjValXc,
@@ -660,6 +689,8 @@
                 )
             }
 
+            // Set rotation enabled and rotate along
+            // Y-axis at 25 degrees. (This is the real Martian tilt!)
             if (rotation) {
                 var c = Math.cos(25)
                 var s = Math.sin(25)
@@ -675,6 +706,8 @@
                 mat4.multiply(newRotationMatrix, planetRotationMatrix, planetRotationMatrix)
             }
 
+
+            // More buffers and matrix arithmetic
             mat4.identity(mvMatrix)
             mat4.translate(mvMatrix, [0, 0, -6])
             mat4.multiply(mvMatrix, planetRotationMatrix)
@@ -699,6 +732,7 @@
             requestAnimationFrame(drawScene)
         }
 
+        // Begin the program
         function start() {
 
             canvas = document.getElementById("gl-canvas")
